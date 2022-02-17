@@ -1,23 +1,31 @@
+"""
+This module is an example of a barebones QWidget plugin for napari
+
+It implements the Widget specification.
+see: https://napari.org/plugins/stable/guides.html#widgets
+
+Replace code below according to your needs.
+"""
 import os
+import pathlib
 from datetime import datetime
+from pathlib import Path
 
 import cv2
 from PyQt5 import QtCore
-from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtGui import QCursor, QIcon, QPixmap
-from PyQt5.QtWidgets import QWidget, QMessageBox, QApplication
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QCursor
+from PyQt5.QtWidgets import QMessageBox
 from ids_peak import ids_peak
 from ids_peak_ipl import ids_peak_ipl
-from numpy import empty
-from pathlib import Path
-
-from src.constant import ROOT_DIR
-from video_ui import initui
+from magicgui import magic_factory
+from qtpy.QtWidgets import QWidget
+from .video_ui import initui
 
 
-class LiveForm(QWidget):
+class LiveIDS(QWidget):
     def __init__(self, napari_viewer):
-        super(LiveForm, self).__init__()
+        super(LiveIDS, self).__init__()
         self.exp_time_value = 50
         initui(self)
         self.viewer = napari_viewer
@@ -34,7 +42,7 @@ class LiveForm(QWidget):
         self.live = False
         self.worker = None
         self.picture = []
-        # self.icon = QIcon(QPixmap(os.path.join(ROOT_DIR, r"src\logos\visual_ai.png")))
+        # self.icon = QIcon(QPixmap(os.path.join(ROOT_DIR, r"napari_IDS\logos\visual_ai.png")))
 
         self.display()
         self.connect_actions()
@@ -146,14 +154,14 @@ class LiveForm(QWidget):
         When the user clicks on the button "Live - view", the behaviour of the program change if the formulary is opened
         """
 
-        self.setStyleSheet(open(os.path.join(ROOT_DIR, r'src\stylesheets\widget_live.css')).read())
+        self.setStyleSheet(
+            open(os.path.join(pathlib.Path(__file__).parent.resolve(), "stylesheets/widget_live.css")).read())
         self._on_live()
 
     def _on_live(self):
         """
         Takes video
         """
-
         self.trigger_buttons(False)
         self.remove_layer("Image")
 

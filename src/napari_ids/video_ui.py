@@ -1,17 +1,16 @@
 import os
+import pathlib
 
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QGridLayout, QLabel, QPushButton, QComboBox, QSpinBox
-
-from src.constant import ROOT_DIR
 
 
 def initui(self):
     self.layout = QGridLayout()
 
     self.logo = QLabel()
-    pixmap = QPixmap(os.path.join(ROOT_DIR, r"src/img/logo_ids.jpg"))
+    pixmap = QPixmap(os.path.join(pathlib.Path(__file__).parent.resolve(), r"img/logo_ids.jpg"))
     pixmap = pixmap.scaled(QSize(220, 220), Qt.KeepAspectRatio, Qt.SmoothTransformation)
     self.logo.setPixmap(pixmap)
     self.logo.setAlignment(Qt.AlignHCenter)

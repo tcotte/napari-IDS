@@ -1,0 +1,16 @@
+name: napari-IDS
+display_name: napari IDS
+contributions:
+  commands:
+    - id: napari-IDS.make_qwidget
+      python_name: napari_ids._widget:LiveIDS
+      title: Make example QWidget
+    - id: napari-IDS.make_magic_widget
+      python_name: napari_ids._widget:example_magic_widget
+      title: Make example magic widget
+    - id: napari-IDS.make_func_widget
+      python_name: napari_ids._widget:example_function_widget
+      title: Make example function widget
+  widgets:
+    - command: napari-IDS.make_qwidget
+      display_name: Live IDS QWidget
