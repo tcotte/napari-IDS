@@ -3,8 +3,6 @@
 [![License](https://img.shields.io/pypi/l/napari-IDS.svg?color=green)](https://github.com/githubuser/napari-IDS/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-IDS.svg?color=green)](https://pypi.org/project/napari-IDS)
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-IDS.svg?color=green)](https://python.org)
-[![tests](https://github.com/githubuser/napari-IDS/workflows/tests/badge.svg)](https://github.com/githubuser/napari-IDS/actions)
-[![codecov](https://codecov.io/gh/githubuser/napari-IDS/branch/main/graph/badge.svg)](https://codecov.io/gh/githubuser/napari-IDS)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-IDS)](https://napari-hub.org/plugins/napari-IDS)
 
 A simple plugin to use with napari
@@ -32,6 +30,20 @@ You can install `napari-IDS` via [pip]:
 To install latest development version :
 
     pip install git+https://github.com/githubuser/napari-IDS.git
+
+
+## First utilisation
+
+Suggested environment : 
+- Python 3.8
+- IDS 1.2.0.5 version installed
+
+To use this package for the first time :
+1. Install Napari `pip install "napari[all]"`
+2. Install napari-IDS package
+3. Install IDS Python api thanks to the command `ids_packages`
+
+If your environment is not the suggested environment, you have to install IDS packages manually. 
 
 
 ## Contributing

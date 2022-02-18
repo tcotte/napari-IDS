@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import pathlib
+
 from setuptools import setup, find_packages
 
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 # requirements = []
 # with open('requirements.txt') as f:
@@ -22,13 +27,14 @@ setup(
     url='https://github.com/tcotte/napari-IDS',
     description='Plug in which enables to take photo with IDS uEye camera',
     long_description_content_type='text/markdown',
-    long_description="file: README.md",
+    long_description=long_description,
     packages=find_packages(),
     python_requires='>=3.8',
     # install_requires=requirements,
     install_requires=['opencv-python', 'numpy'],
-    use_scm_version=use_scm,
-    version="0.0.2",
+    scripts=['bin/ids_packages'],
+    # use_scm_version=use_scm,
+    version="0.0.7",
     setup_requires=['setuptools_scm'],
     classifiers=[
         'Development Status :: 4 - Beta',
