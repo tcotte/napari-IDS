@@ -34,7 +34,7 @@ setup(
     install_requires=['opencv-python', 'numpy'],
     scripts=['bin/ids_packages'],
     # use_scm_version=use_scm,
-    version="0.0.7",
+    version="0.0.8",
     setup_requires=['setuptools_scm'],
     classifiers=[
         'Development Status :: 4 - Beta',

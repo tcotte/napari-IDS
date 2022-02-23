@@ -237,14 +237,15 @@ class LiveIDS(QWidget):
         Get image and display it in "Video" layer
         :return:
         """
-        buffer = self.datastream.WaitForFinishedBuffer(300)
+        buffer = self.datastream.WaitForFinishedBuffer(500)
         image = self.get_image(buffer)
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # Add new mayer if "Video" layer does not exist else overwrite on it
         if self.frame == 0:
-            self.viewer.add_image(image, name="Video", blending='additive', rgb=True)
+            self.viewer.add_image(image_rgb, name="Video", blending='additive', rgb=True)
         else:
-            self.viewer.layers["Video"].data = image
+            self.viewer.layers["Video"].data = image_rgb
 
         # at each new acquisition, control layer appear, so remove it directly
         # grid = self.viewer.window.qt_viewer.controls.widgets[self.viewer.layers['Video']].grid_layout
