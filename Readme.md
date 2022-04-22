@@ -120,13 +120,13 @@ noticed that the application is going to be slower with the running time).
 
 #### Visual Ai Bacterio speed
 
-![VisualAiBacterioGIF](visual_AI_bacterio_speed.gif)
+![VisualAiBacterioGIF](Documentation/visual_AI_bacterio_speed.gif)
 
 For this application we didn't need good frame rate but we can see it is very bad.
 
 #### Multi thread app speed
 
-![MultithreadAppGIF](napari_IDS_speed.gif)
+![MultithreadAppGIF](Documentation/napari_IDS_speed.gif)
 
 It is better, we have around 12 FPS. Moreover, the speed don't decrease with the time and the application is sure to don't
 run out because of the full buffer (because the buffer would not be full after multiple picture savings).
