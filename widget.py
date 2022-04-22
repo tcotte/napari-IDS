@@ -1,11 +1,3 @@
-"""
-This module is an example of a barebones QWidget plugin for napari
-
-It implements the Widget specification.
-see: https://napari.org/plugins/stable/guides.html#widgets
-
-Replace code below according to your needs.
-"""
 import os
 import pathlib
 import time
@@ -26,11 +18,12 @@ from video_ui import initui
 
 
 class LiveIDS(QWidget):
-    hundred_frames = pyqtSignal(int)
+    ten_frames = pyqtSignal(int)
 
     def __init__(self, napari_viewer):
         super(LiveIDS, self).__init__()
 
+        # Attributes to compute fps
         self.start = time.time()
         self.end = 0
 
@@ -69,10 +62,13 @@ class LiveIDS(QWidget):
         self.rec_button.clicked.connect(self._on_click_live)
         self.photo_button.clicked.connect(self._on_photo)
         self.exp_time_box.valueChanged.connect(self._on_exp_changed)
-        # self.model_choice_combobox.currentTextChanged.connect(self._on_change_program)
-        self.hundred_frames.connect(self.refresh_fps)
+        # Signal when 10 frames appeared
+        self.ten_frames.connect(self.refresh_fps)
 
     def refresh_fps(self):
+        """
+        Refresh the FPS counter when 10 frames were displayed
+        """
         self.end = time.time()
 
         time_taken = self.end - self.start
@@ -124,11 +120,6 @@ class LiveIDS(QWidget):
         """
         self.live = False
         self.trigger_buttons(True)
-        # buffer = self.datastream.WaitForFinishedBuffer(1000)
-        # # Get the last picture of the buffer
-        # image = self.get_image(buffer)
-        # # Stop acquisition and remove the buffer to avoid datastream issues when the video takes back
-        # self.stop_acquisition()
 
         # Save the picture to run the model on this picture after
         self.picture = cv2.cvtColor(self.viewer.layers['Video'].data, cv2.COLOR_BGR2RGB)
@@ -181,7 +172,7 @@ class LiveIDS(QWidget):
 
     def start_acquisition(self):
         """
-        Takes video
+        set up some parameters of the camera to take video further
         """
         self.trigger_buttons(False)
         self.remove_layer("Image")
@@ -189,22 +180,15 @@ class LiveIDS(QWidget):
         if self.datastream is None:
             self.open_device()
 
-        # if if was not already "on live", we have to set up some parameters of the camera
-
-
         # Configure exposure time
         self.nodemap_remote_device.FindNode("ExposureTime").SetValue(self.exp_time_value * 1000)
         max_fps = self.nodemap_remote_device.FindNode("AcquisitionFrameRate").Maximum()
-        # fix map fps at 6
+        # fix max fps
         target_fps = min(max_fps, 30)
         self.nodemap_remote_device.FindNode("AcquisitionFrameRate").SetValue(target_fps)
 
-        # Setup acquisition timer accordingly
+        # Setup the clock of the thread which displays the video
         self.aquisition_period = 1 / target_fps
-        # self.acquisition_timer.setInterval((1 / target_fps) * 1000)
-        # self.acquisition_timer.setSingleShot(False)
-        # self.acquisition_timer.timeout.connect(self.on_acquisition_timer)
-
 
         try:
             # Lock critical features to prevent them from changing during acquisition
@@ -225,7 +209,7 @@ class LiveIDS(QWidget):
             self.worker = self.on_acquisition_timer()
             self.worker.yielded.connect(self.update_display)
             self.worker.start()
-            # self.acquisition_timer.start()
+
         return True
 
     @staticmethod
@@ -233,9 +217,9 @@ class LiveIDS(QWidget):
         """
         Get picture from the buffer and convert it to numpy picture
         :param buffer: current buffer data
-        :return: numpy RGB picture
+        :return: numpy RGB 3 channels picture
         """
-        # Create IDS peak IPL image and convert it to RGBa8 format
+        # Create IDS peak IPL image from buffer
         ipl_image = ids_peak_ipl.Image_CreateFromSizeAndBuffer(
             buffer.PixelFormat(),
             buffer.BasePtr(),
@@ -243,11 +227,9 @@ class LiveIDS(QWidget):
             buffer.Width(),
             buffer.Height()
         )
-        converted_ipl_image = ipl_image.ConvertTo(ids_peak_ipl.PixelFormatName_BGR8)
+        # Convert picture in RGB and transform this picture in array with 3 channels
+        converted_ipl_image = ipl_image.ConvertTo(ids_peak_ipl.PixelFormatName_RGB8)
         image_without_alpha = converted_ipl_image.get_numpy_3D()
-
-        # converted_ipl_image = ipl_image.ConvertTo(ids_peak_ipl.PixelFormatName_BGRa8)
-        # image_without_alpha = converted_ipl_image.get_numpy_3D()[:, :, :3]
         return image_without_alpha
 
     def remove_layer(self, layer_name):
@@ -261,42 +243,37 @@ class LiveIDS(QWidget):
     @thread_worker
     def on_acquisition_timer(self):
         """
-        Get image and display it in "Video" layer
-        :return:
+        Get image from the buffer and transmit it
+        :return: yield RGB picture
         """
         while self.viewer.window.qt_viewer:
             buffer = self.datastream.WaitForFinishedBuffer(5000)
 
-            image = self.get_image(buffer)
-
+            image_rgb = self.get_image(buffer)
 
             self.datastream.QueueBuffer(buffer)
-            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
             yield image_rgb
 
-        # self.update_display(image_rgb)
-
+            # Take time between two sends of pictures
             time.sleep(self.aquisition_period)
-            # time.sleep(self.aquisition_period)
-
-        # at each new acquisition, control layer appear, so remove it directly
-        # grid = self.viewer.window.qt_viewer.controls.widgets[self.viewer.layers['Video']].grid_layout
-        # self.remove_controls(grid)
-
-
 
 
     def update_display(self, image):
-        # Add new mlyer if "Video" layer does not exist else overwrite on it
+        """
+        Update the display replacing the old with the new picture in the "Video" layer
+        :param image: RGB picture
+        """
+        # Add new layer if "Video" layer does not exist else overwrite on it
         if self.frame == 0:
             self.viewer.add_image(image, name="Video", blending='additive', rgb=True)
         else:
             self.viewer.layers["Video"].data = image
         self.frame += 1
 
+        # Refresh the FPS when 10 pictures were displayed
         if self.frame % 10 == 0:
-            self.hundred_frames.emit(self.frame)
+            self.ten_frames.emit(self.frame)
 
 
 
